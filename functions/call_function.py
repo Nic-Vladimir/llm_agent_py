@@ -46,9 +46,18 @@ def call_function(function_call_part: types.FunctionCall, verbose: bool = False)
     args = function_call_part.args or {}
     args["working_directory"] = "./calculator"
 
+    result: str | None = None
     try:
         result = func(**args)
-        print(f"Result:\n{result}")
+        # print(f"Result:\n{result}")
     except Exception as e:
         print(f"Error while executing {function_call_part.name}: {e}")
-    return
+    return types.Content(
+        role="user",
+        parts=[
+            types.Part.from_function_response(
+                name=str(function_call_part.name),
+                response={"result": result}
+            )
+        ]
+    )
